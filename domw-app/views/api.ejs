@@ -1,0 +1,21 @@
+## App Version:
+
+Executing in runtime version: <%= runtimeVersion %>
+
+
+## Files Found:
+
+<% files.forEach(file => { %>
+  - <%= file.name %>
+<% }) %>
+
+<% if(textFiles.length > 0) { %>
+## Text File Data
+  <% textFiles.forEach(tf => { %>
+---------------------------------------------------------------------------------------------------
+
+### <%= tf.name %>
+
+<%= tf.data %>
+  <% }) %>
+<% } %>
