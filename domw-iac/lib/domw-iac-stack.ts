@@ -63,13 +63,13 @@ export class DomwIacStack extends cdk.Stack {
       taskSubnets: {
         subnets: clusterSubnets.subnets,
       },
-      loadBalancerName: 'ecs-test-alb',
+      loadBalancerName: `${id}-domw-ecs-alb`,
       publicLoadBalancer: true,
       domainName: `${serviceName}.${domainName}`,
       domainZone: hostedZone,
       // certificate: , (*** created automatically if domainName & domainZone & https protocol are specified =D ***)
       protocol: elbv2.ApplicationProtocol.HTTPS,
-      protocolVersion: elbv2.ApplicationProtocolVersion.HTTP2,
+      protocolVersion: elbv2.ApplicationProtocolVersion.HTTP1,
       sslPolicy: elbv2.SslPolicy.FORWARD_SECRECY_TLS12_RES_GCM,
       redirectHTTP: true,
       //
