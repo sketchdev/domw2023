@@ -39,8 +39,6 @@
     "@aws-cdk/aws-iam:importedRoleStackSafeDefaultPolicyName": true,
     "@aws-cdk/aws-s3:serverAccessLogsUseBucketPolicy": true,
     "@aws-cdk/aws-route53-patters:useCertificate": true,
-    "@aws-cdk/customresources:installLatestAwsSdkDefault": false,
-    "vpcId-us-east-1": "vpc-01234567890123456",
-    "hosted-zone-name": "some.example.com"
+    "@aws-cdk/customresources:installLatestAwsSdkDefault": false
   }
 }

@@ -5,7 +5,6 @@ import { Construct } from 'constructs';
 import { Tags } from 'aws-cdk-lib';
 import { Cluster, ContainerImage, LogDriver } from 'aws-cdk-lib/aws-ecs';
 import { ApplicationLoadBalancedFargateService } from 'aws-cdk-lib/aws-ecs-patterns';
-import { HostedZone } from 'aws-cdk-lib/aws-route53';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import path = require('path');
 
@@ -13,34 +12,55 @@ export class DomwIacStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // define the name of this service (probably ought to be in context file or props input)
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // DEVOPS MIDWEST 2023
+    //
+    // PARTICIPANT TODO:
+    //   The following two variables ought to be altered by you before running this IaC stack.
+    //
+    //   - serviceName:     This should be changed to something more meaningful and unique to you / your application
+    //   - useDefaultVpc:   If your AWS account has a default VPC (if you don't know what that means, leave it set to `false`)
+    //                      change this to `true` to reduce costs associated with this stack. If you are unsure or would
+    //                      prefer more assurance that things will deploy correctly and in a more secure manner, leave it
+    //                      set as `false`.
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     const serviceName = 'ecs-test';
+    const useDefaultVpc = false;
 
-    ///////////////////////////////////////
-    //
-    // Set up ECS
-    //   - Fargate, Cluster, Service
-    //
-    ///////////////////////////////////////
-    // Lookup the VPC that the ECS cluster will be deployed into
-    //   (the VPC Id should be defined in cdk[.ENVIRONMENT].json as "vpcId-REGION" (i.e., "vpcId-us-east-1"))
-    const vpc = ec2.Vpc.fromLookup(this, 'VPC', {vpcId: this.node.tryGetContext(`vpcId-${this.region}`)});
+
+    ////////////////////////////////////////////
+    // Set up VPC for ECS Cluster
+    ////////////////////////////////////////////
+    let vpc;
+    if (useDefaultVpc) {
+      vpc = ec2.Vpc.fromLookup(this, 'default-vpc', {
+        isDefault: true
+      });
+    } else {
+      vpc = new ec2.Vpc(this, 'vpc', {
+        ipAddresses: ec2.IpAddresses.cidr('10.210.0.0/24'),
+        maxAzs: 2,
+        natGateways: 1,
+        vpcName: serviceName.toLowerCase(),
+        natGatewayProvider: ec2.NatProvider.instance({
+          instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3A, ec2.InstanceSize.NANO)
+        }),
+      });  
+    }
     const clusterSubnets = vpc.selectSubnets({
-      subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
-    });
-
-    // Lookup the Route53 Hosted Zone for use later in SSL cert creation and service registry
-    const domainName = this.node.tryGetContext('hosted-zone-name');
-    const hostedZone = HostedZone.fromLookup(this, 'service-hosted-zone', {
-      domainName,
+      subnetType: useDefaultVpc ? ec2.SubnetType.PUBLIC : ec2.SubnetType.PRIVATE_WITH_EGRESS,
     });
     
+    ////////////////////////////////////////////
+    // Set up ECS: Fargate, Cluster, Service
+    ////////////////////////////////////////////
     // Create the ECS Cluster (easy-peasy)
     const cluster = new Cluster(this, 'ecs-cluster', { vpc });
 
     // Create the ECS service running on Fargate in the new cluster
     // (https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_ecs_patterns.ApplicationLoadBalancedFargateService.html)
-    new ApplicationLoadBalancedFargateService(this, 'Service', {
+    new ApplicationLoadBalancedFargateService(this, 'alb-fargate-service', {
       cluster,
       memoryLimitMiB: 512,
       desiredCount: 1,
@@ -65,21 +85,11 @@ export class DomwIacStack extends cdk.Stack {
       },
       loadBalancerName: `${id}-domw-ecs-alb`,
       publicLoadBalancer: true,
-      domainName: `${serviceName}.${domainName}`,
-      domainZone: hostedZone,
-      // certificate: , (*** created automatically if domainName & domainZone & https protocol are specified =D ***)
-      protocol: elbv2.ApplicationProtocol.HTTPS,
+      protocol: elbv2.ApplicationProtocol.HTTP,
       protocolVersion: elbv2.ApplicationProtocolVersion.HTTP1,
-      sslPolicy: elbv2.SslPolicy.FORWARD_SECRECY_TLS12_RES_GCM,
-      redirectHTTP: true,
-      //
-      //// extras for fun:
-      // securityGroups: ,
-      // cloudMapOptions: (service discovery),
-      // deploymentController: (blue-green enabled via CODE_DEPLOY),
     });
 
-    // Tag all resources created by this "template"
+    // Tag all resources created by this IaC
     Tags.of(this).add('CreatedBy', 'Me');
     Tags.of(this).add('Application', 'DevOps Midwest 2023');
     Tags.of(this).add('Purpose', 'Tutorial');
