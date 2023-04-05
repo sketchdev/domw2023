@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node index.js",
+    "seed": "cp ../LICENSE . && mkdir appdata && cd appdata && touch file1.js && touch file2.json && touch file3.java && mkdir subdir && cd subdir && touch data.csv && touch system32.dll && touch staging.conf && cd .. && ls subdir > out.txt && cp ../../LICENSE ./zLICENSE.txt"
   },
   "author": "Sketch Development Services",
   "license": "ISC",

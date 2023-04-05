@@ -31,6 +31,15 @@ app.get('/status', (req, res) => {
 });
 
 /**
+ * API with constantly changing results
+ * (just displays current date and time)
+ */
+app.get('/time', (req, res) => {
+  res.append('Content-Type', 'text/plain');
+  res.send(new Date().toISOString());
+});
+
+/**
  * Fake API endpoint. Lists files in the given subdirectory.
  */
 app.get('/api', async (req, res) => {
@@ -50,6 +59,9 @@ app.get('/api', async (req, res) => {
   res.render('api', { files, textFiles, runtimeVersion });
 });
 
+/**
+ * Init app
+ */
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
