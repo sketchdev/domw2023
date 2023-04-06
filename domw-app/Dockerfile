@@ -1,4 +1,5 @@
-FROM node:lts-alpine
+FROM node:16-alpine
+# FROM node:lts-alpine  # we'll talk about this along with https://hub.docker.com/_/node
 
 # Create app directory
 WORKDIR /usr/src/app

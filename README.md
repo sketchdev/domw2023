@@ -88,6 +88,26 @@ _FYI, press `CTRL + C` in the terminal windows to stop the running containers wh
 
 ### Customizing Your Application's Image
 
+As a reminder, all IaC code for Docker lives in the `Dockerfile`.  It is here where we will need to change things to affect our application server, or "Docker container."
+
+## TLDR;
+
+```bash
+cd domw-app
+npm install
+npm run seed
+npm start
+
+# browse to http://localhost:3000/api
+CTRL + C
+
+docker build -t domw:1.0 .
+docker run --rm -p 3000:3000 domw:1.0
+
+# browse to http://localhost:3000/api
+CTRL + C
+```
+
 
 # Serverless Container Deployment
 
