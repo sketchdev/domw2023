@@ -76,7 +76,7 @@ docker run --rm -p 3000:3000 domw:1.0
 
 Your application is now running as a container, and you can access it just as you did the locally running application at [http://localhost:3000/](http://localhost:3000/).
 
-One of the neat features of backups is that you can restore them any number of times.  Coincidentally, you can do the same with Docker images!  In another terminal window, run this command:
+One of the neat features of backups is that you can restore them any number of times.  Coincidentally, you can do the same with Docker images!  In another terminal window in the `domw-app` directory, run this command and then browse to [http://localhost:3001/](http://localhost:3001/):
 
 ```bash
 docker run --rm -p 3001:3000 domw:1.0
@@ -88,7 +88,37 @@ _FYI, press `CTRL + C` in the terminal windows to stop the running containers wh
 
 ### Customizing Your Application's Image
 
-As a reminder, all IaC code for Docker lives in the `Dockerfile`.  It is here where we will need to change things to affect our application server, or "Docker container."
+As a reminder, all IaC code for Docker lives in the `Dockerfile`.  It is here where we will need to change things to affect our application server, or "Docker container."  Opening that file up and making changes between lines 28 - 31 is a good place to copy and paste changes to fake:
+
+ 1. application configuration files (i.e., `&& touch environment.conf \`)
+ 1. application favicon (i.e., `&& touch fav.ico \`)
+ 1. .NET configuration files (i.e., `&& touch web.config \`)
+ 1. tomcat configuration files (i.e., `&& mkdir WEB-INF && touch WEB-INF/web.xml \`)
+ 1. maven credentials (i.e., `&& mkdir .m2 && touch .m2/settings-security.xml \`)
+ 1. custom CA certificate(s) (i.e., `&& touch custom-ca.crt \`)
+ 1. install nginx (i.e., `&& apk add nginx \`)
+ 1. install openssl (i.e., `&& apk add openssl \`)
+
+These alterations suffice for the purposes of this demonstration, but most are rather frivolous.  In a real setting, you would make more use of the `RUN`, `COPY`, and other [Dockerfile commands](https://docs.docker.com/engine/reference/builder/) to install tools and configure your server / image.
+
+Once you've made the desired alterations to your `Dockerfile`, it's time to build a new version of your image using the following command typed in an available terminal window:
+
+```bash
+docker build -t domw:2.0 .
+```
+
+Similar to before, a bunch of text will fly by as the new image of your application is being created.  Once that is successful, when you run `docker images`, you should see both your `domw` image with a `TAG` of `1.0` _as well as_ a `2.0` tag.  With these two tags in place, we're about to see some cool magic!
+
+Assuming both docker containers from earlier have been stopped, it's time to launch two new containers:
+
+```bash
+docker run --rm -p 3000:3000 domw:1.0  # run this from terminal window #1
+docker run --rm -p 3001:3000 domw:2.0  # run this from terminal window #2
+```
+
+Now, when you browse to [http://localhost:3000/](http://localhost:3000/), you will see the older version of your application running.  When you browse to [http://localhost:3001/](http://localhost:3001/), you will see the new version of your application containing all of the "server" modifications you made to your `Dockerfile`.
+
+_FYI, press `CTRL + C` in the terminal windows to stop the running containers whenever you're done with them_
 
 ## TLDR;
 
@@ -106,6 +136,17 @@ docker run --rm -p 3000:3000 domw:1.0
 
 # browse to http://localhost:3000/api
 CTRL + C
+
+# modify your Dockerfile based on some suggestions from the "Customizing Your Application's Image" section
+
+docker build -t domw:2.0 .
+docker run --rm -p 3000:3000 domw:1.0
+# open a new terminal window in the domw-app directory
+docker run --rm -p 3001:3000 domw:2.0
+
+# browse to http://localhost:3000/api
+# browse to http://localhost:3001/api
+CTRL + C  # in each of the two terminal windows
 ```
 
 
