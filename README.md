@@ -11,6 +11,9 @@ First of all, thanks for attending our talk!  During this hands-on workshop, we 
 
   * [Node JS](https://nodejs.org/en/)
   * An [AWS Account](https://portal.aws.amazon.com/billing/signup?nc2=h_ct&src=header_signup&redirect_url=https%3A%2F%2Faws.amazon.com%2Fregistration-confirmation#/start/email)
+    * [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-prereqs.html)
+    * CLI [Credentials](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html)
+      * For this workshop, we recommend either the [Credentials file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html) or [Config file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html) methods using "Long-term credentials" (despite the warning on that page)
   * [Docker](https://www.docker.com/products/docker-desktop/)
   * An [internet](https://www.google.com/search?q=what+is+the+internet&oq=what+is+the+internet) connection
 
@@ -154,9 +157,52 @@ CTRL + C  # in each of the two terminal windows
 
 ## AWS ECS
 
+Amazon's [ECS](https://aws.amazon.com/ecs/) ("Elastic Container Service") offers a managed way to run your containers in the cloud.  It provides users with two different run engines.  The first is [EC2](https://aws.amazon.com/ec2/) ("Elastic Compute Cloud"), which takes available compute engines that are managed and operated by you.  The second option -- and the one we will use in this workshop -- is [Fargate](https://aws.amazon.com/fargate/), which is a "serverless" option where all compute capacity is managed and operated by AWS.  In either case, ECS does the heavy lifting of figuring out what containers fit where, scaling as demand increases or decreases, and replacing any unhealthy containers automatically.
+
 ## CDK
 
-```terminal
+CDK ("Cloud Development Kit") is a framework for creating cloud infrastructure for your systems using programming languages you're already familiar with:
+
+ * Typescript
+ * Javascript
+ * Java
+ * Go
+ * Python
+ * .NET
+
+Included within this project is an AWS infrastructure stack written in Typescript that allows the container from `domw-app` to be deployed and run in a serverless environment.
+
+__Running and deploying this stack will incur $0.05 in charges from AWS for each hour it's running ([$30.19 per month](https://calculator.aws/#/estimate?id=5fe91ba97e9c01026de69d31f77ef482809a775f)).  Be sure to delete the resources when you're done by running `cdk destroy` to stop incurring any further charges.__
+
+### Deploying Your Infrastructure
+
+#### Prerequisites / First Steps
+There are a couple of one-time steps that you'll need to complete before running your first deployment of this infrastructure in your AWS account.  First of which is getting the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-prereqs.html) installed and configuring proper credentials in your terminal (instructions in the previous link) for you to be able to interface with the AWS APIs.
+
+Next, in a new terminal window, run the following:
+
+```bash
 npm install -g cdk
 cdk bootstrap
+
+cd domw-app
+npm run seed
+
+cd ../domw-iac
+npm install
 ```
+
+Lastly, run `docker ps` in your terminal window.  If you get any kind of error message from that, ensure you have Docker running locally.
+
+#### Deployment Process
+With all the deployment prerequisites out of the way, you can trigger deployments at any time, whether for the first time or after having made updates to your IaC code by running the command `cdk deploy` in your terminal window from the `./domw-iac` directory.
+
+### Accessing Your Deployed Application
+
+When you first run the `cdk deploy` command, there will be two "Outputs:" listed near the very end of everything that gets printed to your screen.  The second of which looks like `YOUR_CDK_STACK_NAME.albfargateserviceServiceURLBLAHBLAH` and has a value starting with "http://" is the one you want.  Copying that URL and pasting it into your browser will take you to your container deployed to ECS Fargate.
+
+If you've lost that output, you can get it back by running `cdk deploy` again. (It won't deploy a duplicate set of infrastructure, so don't worry about running that command multiple times.)
+
+### Clean Up Your Deployed Environment
+
+When you're done, be sure to delete the deployed infrastructure so you don't incure any further costs from AWS.  You can do that by typing `cdk destroy` in your terminal window from the `./domw-iac` directory.
