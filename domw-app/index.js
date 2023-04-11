@@ -60,6 +60,26 @@ app.get('/api', async (req, res) => {
 });
 
 /**
+ * Demo batch processing API endpoint. Waits an amount of time before replying.
+ * Wait time can be specified by:
+ *   - setting a "duration" querystring param (i.e. /task?duration=xxxx)
+ *   - setting DURATION environment variable  (i.e. `DURATION=xxxx npm start` or `docker run --rm -p 3000:3000  -e DURATION=xxxx domw:1.0`)
+ *   - not setting anything and the default of 3000ms kicks in
+ */
+app.get('/task', async (req, res) =>  {
+  const ms = req.query['duration'] ?? process.env.DURATION ?? 3000;
+
+  console.log('starting simulated long running batch code');
+  await wait(ms);
+  console.log(`batch task complete! finished in ${ms} milliseconds`);
+
+  res.json({status: 'complete', duration: ms});
+});
+function wait(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
  * Init app
  */
 app.listen(port, () => {
