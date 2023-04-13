@@ -11,7 +11,7 @@ export async function handler(event, context) {
   const awsConfig = { region: "us-east-1" };
   const ssmClient = new SSMClient(awsConfig);
   const parameterCommandOutput = await ssmClient.send(new GetParameterCommand({ // GetParameterRequest
-    Name: "EcsDomw2023BatchRunConfig", // required
+    Name: "Domw2023BatchRunConfig", // required
   }));
   const runTaskConfigStr = parameterCommandOutput?.Parameter?.Value;
   console.log('runTaskConfigStr', runTaskConfigStr);
