@@ -73,14 +73,14 @@ export class DomwIacStack extends cdk.Stack {
     const vpc = createVPC(stack, 'Domw2023VPC', { cidr: '10.230.0.0/16' });
 
     ////////////////////////////////////////////
-    // Set up ECS: Fargate, Cluster, Service
+    // Set up ECS: Fargate, Cluster, Task Def
     ////////////////////////////////////////////
     // Create a batch cluster for running our ECS Tasks
     const batchCluster = new ecs.Cluster(stack, "BatchCluster", { vpc });
 
     const fargateTaskDefinition = new ecs.FargateTaskDefinition(stack, 'BatchTaskDef', {
       memoryLimitMiB: 512,
-      cpu: 256,
+      cpu: 256, // 1024 is 1 vCPU
     });
     const batchContainer = fargateTaskDefinition.addContainer("BatchContainer", {
       image: ecs.ContainerImage.fromAsset("../domw-batch"),
@@ -124,7 +124,7 @@ export class DomwIacStack extends cdk.Stack {
     const serviceCluster = new ecs.Cluster(stack, "ServiceCluster", { vpc });
     const loadBalancedFargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(stack, "MyFargateService", {
       cluster: serviceCluster, // Required
-      cpu: 512, // Default is 256
+      cpu: 512, // Default is 256, 1024 is 1 vCPU
       desiredCount: 1, // Default is 1
       taskImageOptions: {
         image: ecs.ContainerImage.fromAsset("../domw-app", {}),
