@@ -7,6 +7,11 @@ First of all, thanks for attending our talk!  During this hands-on workshop, we 
   * Host your containerized application in a serverless environment
   * Scale your deployment to handle production-level volumes
 
+# DevOps Mid-West Slides
+
+ - Beyond Lambdas: Using AWS ECS to Scale Long Running Jobs Up and Back Down - Jeff Barczewski
+   - [Google Slides](https://docs.google.com/presentation/d/1Sd77PnPf3xDBLUDmSBERwYoXqeYLnGhk9TYsEhdvPPk/edit?usp=sharing)
+
 # Prerequisites
 
   * [Node JS](https://nodejs.org/en/)
