@@ -27,7 +27,7 @@ export class DomwIacStack extends cdk.Stack {
     // Add our app docker image to ECR
     ////////////////////////////////////////////
     const appImage = new DockerImageAsset(stack, 'MyAppImage', {
-      directory: path.join(__dirname, '../domw-app'),
+      directory: path.join(__dirname, '../../domw-app'),
     });
 
     ////////////////////////////////////////////
@@ -83,7 +83,7 @@ export class DomwIacStack extends cdk.Stack {
       cpu: 256,
     });
     const batchContainer = fargateTaskDefinition.addContainer("BatchContainer", {
-      image: ecs.ContainerImage.fromAsset("./domw-batch"),
+      image: ecs.ContainerImage.fromAsset("../domw-batch"),
       logging: ecs.LogDriver.awsLogs({
         streamPrefix: 'EcsDomwBatch',
         logRetention: RetentionDays.THREE_MONTHS,
@@ -95,7 +95,7 @@ export class DomwIacStack extends cdk.Stack {
       handler: 'index.handler',
       memorySize: 512, // MB
       timeout: cdk.Duration.minutes(5), // max of 15m
-      code: lambda.Code.fromAsset(path.join(__dirname, '../domw-lambda')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../domw-lambda')),
     });
     const batchRunLambdaURL = batchRunLambdaFunction.addFunctionUrl({
       authType: lambda.FunctionUrlAuthType.NONE,
@@ -127,7 +127,7 @@ export class DomwIacStack extends cdk.Stack {
       cpu: 512, // Default is 256
       desiredCount: 1, // Default is 1
       taskImageOptions: {
-        image: ecs.ContainerImage.fromAsset("./domw-app", {}),
+        image: ecs.ContainerImage.fromAsset("../domw-app", {}),
         containerPort: 3000,
         enableLogging: true,
         logDriver: ecs.LogDriver.awsLogs({
