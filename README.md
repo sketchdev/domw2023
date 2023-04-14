@@ -79,7 +79,7 @@ But, how do you go about _using_ your containerized app now?  The thing we built
 To launch a container, we'll use the [docker run](https://docs.docker.com/engine/reference/commandline/run/) command.  In your terminal window, run the command below.  _Be sure to stop your locally running domw-app first by pressing `CTRL + C` if it's running anywhere else._
 
 ```bash
-docker run --rm -p 3000:3000 domw:1.0
+docker run --init --rm -p 3000:3000 domw:1.0
 ```
 
 Your application is now running as a container, and you can access it just as you did the locally running application at [http://localhost:3000/](http://localhost:3000/).
@@ -87,7 +87,7 @@ Your application is now running as a container, and you can access it just as yo
 One of the neat features of backups is that you can restore them any number of times.  Coincidentally, you can do the same with Docker images!  In another terminal window in the `domw-app` directory, run this command and then browse to [http://localhost:3001/](http://localhost:3001/):
 
 ```bash
-docker run --rm -p 3001:3000 domw:1.0
+docker run --init --rm -p 3001:3000 domw:1.0
 ```
 
 Just that easily, you now have two instances of your application running!  Don't believe it?  Let's now focus on altering the `Dockerfile` to make some noticable differences from one running container to the next.
@@ -120,8 +120,8 @@ Similar to before, a bunch of text will fly by as the new image of your applicat
 Assuming both docker containers from earlier have been stopped, it's time to launch two new containers:
 
 ```bash
-docker run --rm -p 3000:3000 domw:1.0  # run this from terminal window #1
-docker run --rm -p 3001:3000 domw:2.0  # run this from terminal window #2
+docker run --init --rm -p 3000:3000 domw:1.0  # run this from terminal window #1
+docker run --init --rm -p 3001:3000 domw:2.0  # run this from terminal window #2
 ```
 
 Now, when you browse to [http://localhost:3000/](http://localhost:3000/), you will see the older version of your application running.  When you browse to [http://localhost:3001/](http://localhost:3001/), you will see the new version of your application containing all of the "server" modifications you made to your `Dockerfile`.
@@ -140,7 +140,7 @@ npm start
 CTRL + C
 
 docker build -t domw:1.0 .
-docker run --rm -p 3000:3000 domw:1.0
+docker run --init --rm -p 3000:3000 domw:1.0
 
 # browse to http://localhost:3000/api
 CTRL + C
@@ -148,9 +148,9 @@ CTRL + C
 # modify your Dockerfile based on some suggestions from the "Customizing Your Application's Image" section
 
 docker build -t domw:2.0 .
-docker run --rm -p 3000:3000 domw:1.0
+docker run --init --rm -p 3000:3000 domw:1.0
 # open a new terminal window in the domw-app directory
-docker run --rm -p 3001:3000 domw:2.0
+docker run --init --rm -p 3001:3000 domw:2.0
 
 # browse to http://localhost:3000/api
 # browse to http://localhost:3001/api
